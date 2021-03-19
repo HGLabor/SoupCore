@@ -19,13 +19,6 @@ repositories {
     maven { url "https://papermc.io/repo/repository/maven-public/" }
 }
 
-dependencies {
-    compileOnly "com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT"
-    compileOnly 'de.hglabor:kit-api:0.2.1'
-    compileOnly 'de.hglabor:localization:0.0.6'
-    compileOnly 'de.hglabor:hglabor-utils:0.0.4'
-}
-
 publishing {
     publications {
         maven(MavenPublication) {
@@ -34,6 +27,9 @@ publishing {
     }
 }
 
+def ossrhName = hasProperty("ossrhUsername") ? ossrhUsername : "NAME";
+def ossrhPw = hasProperty("ossrhPassword") ? ossrhPassword : "PW";
+
 uploadArchives {
     repositories {
         mavenDeployer {
@@ -41,26 +37,26 @@ uploadArchives {
 
             repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
                 authentication(
-                        userName: hasProperty("ossrhUsername") ? ossrhUsername : "NAME",
-                        password: hasProperty("ossrhPassword") ? ossrhPassword : "PASSWORD")
+                        userName: ossrhName,
+                        password: ossrhPw)
             }
 
             snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
                 authentication(
-                        userName: hasProperty("ossrhUsername") ? ossrhUsername : "NAME",
-                        password: hasProperty("ossrhPassword") ? ossrhPassword : "PASSWORD")
+                        userName: ossrhName,
+                        password: ossrhPw)
             }
 
             pom.project {
                 name 'soupcore'
                 packaging 'jar'
                 description "SoupCore"
-                url 'https://github.com/HGLabor/HGLaborKitAPI2.0/tree/main'
+                url 'https://github.com/HGLabor/SoupCore/tree/main'
 
                 scm {
-                    connection "scm:git:git://github.com/HGLabor/HGLaborKitAPI2.0.git"
-                    developerConnection "scm:git:ssh://github.com:HGLabor/HGLaborKitAPI2.0.git"
-                    url "https://github.com/HGLabor/HGLaborKitAPI2.0"
+                    connection "scm:git:git://github.com/HGLabor/SoupCore.git"
+                    developerConnection "scm:git:ssh://github.com:HGLabor/SoupCore.git"
+                    url "https://github.com/HGLabor/SoupCore"
                 }
 
                 developers {
@@ -80,6 +76,12 @@ uploadArchives {
     }
 }
 
+dependencies {
+    compileOnly "com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT"
+    compileOnly 'de.hglabor:kit-api:0.2.1'
+    compileOnly 'de.hglabor:localization:0.0.6'
+    compileOnly 'de.hglabor:hglabor-utils:0.0.4'
+}
 
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
