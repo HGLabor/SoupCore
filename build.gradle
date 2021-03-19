@@ -19,6 +19,13 @@ repositories {
     maven { url "https://papermc.io/repo/repository/maven-public/" }
 }
 
+dependencies {
+    compileOnly "com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT"
+    compileOnly 'de.hglabor:kit-api:0.2.1'
+    compileOnly 'de.hglabor:localization:0.0.6'
+    compileOnly 'de.hglabor:hglabor-utils:0.0.4'
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
@@ -73,9 +80,27 @@ uploadArchives {
     }
 }
 
-dependencies {
-    compileOnly "com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT"
-    compileOnly 'de.hglabor:kit-api:0.2.1'
-    compileOnly 'de.hglabor:localization:0.0.6'
-    compileOnly 'de.hglabor:hglabor-utils:0.0.4'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
 }
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+artifacts {
+    archives javadocJar, sourcesJar
+}
+
+signing {
+    sign configurations.archives
+}
+
+
