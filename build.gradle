@@ -75,6 +75,7 @@ uploadArchives {
 
 dependencies {
     compileOnly "com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT"
-    compileOnly 'de.hglabor:localization:0.0.5'
+    compileOnly 'de.hglabor:kit-api:0.2.1'
+    compileOnly 'de.hglabor:localization:0.0.6'
     compileOnly 'de.hglabor:hglabor-utils:0.0.4'
 }
