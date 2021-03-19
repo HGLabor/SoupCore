@@ -1,8 +1,9 @@
 package de.hglabor.soupcore;
 
 import com.google.common.collect.ImmutableMap;
+import de.hglabor.plugins.kitapi.kit.kits.AnalystKit;
+import de.hglabor.plugins.kitapi.player.KitPlayer;
 import de.hglabor.soupcore.interfaces.IPlayerList;
-import de.hglabor.utils.localization.Localization;
 import de.hglabor.utils.noriskutils.ChatUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.bukkit.Location;
@@ -18,6 +19,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import static de.hglabor.utils.localization.Localization.t;
+
 public class Tracker implements Listener {
     private final double distance;
     private final IPlayerList playerList;
@@ -31,18 +34,33 @@ public class Tracker implements Listener {
     public void onUseTracker(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         Entity target = searchForCompassTarget(player);
+        KitPlayer kitPlayer = playerList.getKitPlayer(player);
         if (event.getMaterial() == Material.COMPASS) {
             if (target == null) {
-                player.sendMessage(Localization.INSTANCE.getMessage("hglabor.tracker.noTarget", ChatUtils.getPlayerLocale(player)));
+                player.sendMessage(t("hglabor.tracker.noTarget", ChatUtils.getPlayerLocale(player)));
             } else {
                 player.setCompassTarget(target.getLocation());
-                player.sendMessage(Localization.INSTANCE.getMessage("hglabor.tracker.target", ImmutableMap.of("targetName", target.getName()), ChatUtils.getPlayerLocale(player)));
+                sendTrackingMessage(player, target, kitPlayer);
             }
         }
     }
 
+    private void sendTrackingMessage(Player player, Entity target, KitPlayer kitPlayer) {
+        if (kitPlayer.hasKit(AnalystKit.INSTANCE)) {
+            KitPlayer targetKitPlayer = playerList.getKitPlayer((Player) target);
+            player.sendMessage(t("hglabor.tracker.targetDetailed",
+                    ImmutableMap.of(
+                            "targetName", target.getName(),
+                            "kits", targetKitPlayer.printKits(),
+                            "distance", String.valueOf(player.getLocation().distance(target.getLocation()))),
+                    ChatUtils.getPlayerLocale(player)));
+        } else {
+            player.sendMessage(t("hglabor.tracker.target", ImmutableMap.of("targetName", target.getName()), ChatUtils.getPlayerLocale(player)));
+        }
+    }
+
     private Entity searchForCompassTarget(Player tracker) {
-        List<Pair<Entity,Double>> pairs = new ArrayList<>();
+        List<Pair<Entity, Double>> pairs = new ArrayList<>();
         for (Entity possibleTarget : playerList.getTrackingTargets()) {
             if (possibleTarget == null)
                 continue;
@@ -50,7 +68,7 @@ public class Tracker implements Listener {
                 continue;
             double distanceBetween = getDistanceBetween(tracker, possibleTarget);
             if (distanceBetween > distance) {
-                pairs.add(Pair.of(possibleTarget,distanceBetween));
+                pairs.add(Pair.of(possibleTarget, distanceBetween));
             }
         }
         Optional<Pair<Entity, Double>> target = pairs.stream().min(Comparator.comparingDouble(Pair::getRight));
