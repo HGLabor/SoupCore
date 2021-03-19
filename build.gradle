@@ -1,0 +1,80 @@
+allprojects {
+    repositories {
+        jcenter()
+    }
+    apply plugin: 'maven'
+    apply plugin: 'maven-publish'
+    apply plugin: 'signing'
+    apply plugin: 'java'
+}
+
+group = 'de.hglabor'
+description = 'SoupCore for HGLabor'
+version = '0.0.1'
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven { url "https://papermc.io/repo/repository/maven-public/" }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from(components.java)
+        }
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                authentication(
+                        userName: hasProperty("ossrhUsername") ? ossrhUsername : "NAME",
+                        password: hasProperty("ossrhPassword") ? ossrhPassword : "PASSWORD")
+            }
+
+            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(
+                        userName: hasProperty("ossrhUsername") ? ossrhUsername : "NAME",
+                        password: hasProperty("ossrhPassword") ? ossrhPassword : "PASSWORD")
+            }
+
+            pom.project {
+                name 'soupcore'
+                packaging 'jar'
+                description "SoupCore"
+                url 'https://github.com/HGLabor/HGLaborKitAPI2.0/tree/main'
+
+                scm {
+                    connection "scm:git:git://github.com/HGLabor/HGLaborKitAPI2.0.git"
+                    developerConnection "scm:git:ssh://github.com:HGLabor/HGLaborKitAPI2.0.git"
+                    url "https://github.com/HGLabor/HGLaborKitAPI2.0"
+                }
+
+                developers {
+                    developer {
+                        id 'copyandexecute'
+                    }
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    compileOnly "com.destroystokyo.paper:paper-api:1.16.5-R0.1-SNAPSHOT"
+    compileOnly 'de.hglabor:localization:0.0.5'
+    compileOnly 'de.hglabor:hglabor-utils:0.0.4'
+}
